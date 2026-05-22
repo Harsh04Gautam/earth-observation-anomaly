@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getHealth, getMissingObservations, getSensorAnomalies, getSensorReadings, getSensors } from './api/eoApi.js';
 import SensorMap from './components/SensorMap.jsx';
 import SensorDetails from './components/SensorDetails.jsx';
 import StatusPanel from './components/StatusPanel.jsx';
+import UploadPanel from './components/UploadPanel.jsx';
 
 function App() {
   const [apiStatus, setApiStatus] = useState('checking');
@@ -13,27 +14,36 @@ function App() {
   const [missingObservations, setMissingObservations] = useState([]);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    async function loadDashboard() {
-      try {
-        const [health, sensorPayload, missingPayload] = await Promise.all([
-          getHealth(),
-          getSensors(),
-          getMissingObservations(),
-        ]);
+  const loadDashboard = useCallback(async (preferredSensorId = null) => {
+    try {
+      const [health, sensorPayload, missingPayload] = await Promise.all([
+        getHealth(),
+        getSensors(),
+        getMissingObservations(),
+      ]);
 
-        setApiStatus(health.status);
-        setSensors(sensorPayload.sensors);
-        setMissingObservations(missingPayload.missing_observations);
-        setSelectedSensorId(sensorPayload.sensors[0]?.sensor_id ?? null);
-      } catch (err) {
-        setApiStatus('offline');
-        setError(err.message);
-      }
+      setApiStatus(health.status);
+      setSensors(sensorPayload.sensors);
+      setMissingObservations(missingPayload.missing_observations);
+      setSelectedSensorId((currentSensorId) => {
+        if (preferredSensorId) {
+          return preferredSensorId;
+        }
+        if (currentSensorId && sensorPayload.sensors.some((sensor) => sensor.sensor_id === currentSensorId)) {
+          return currentSensorId;
+        }
+        return sensorPayload.sensors[0]?.sensor_id ?? null;
+      });
+      setError('');
+    } catch (err) {
+      setApiStatus('offline');
+      setError(err.message);
     }
-
-    loadDashboard();
   }, []);
+
+  useEffect(() => {
+    loadDashboard();
+  }, [loadDashboard]);
 
   useEffect(() => {
     if (!selectedSensorId) {
@@ -78,12 +88,15 @@ function App() {
           selectedSensorId={selectedSensorId}
           onSelectSensor={setSelectedSensorId}
         />
-        <SensorDetails
-          sensor={selectedSensor}
-          readings={readings}
-          anomalies={anomalies}
-          missingObservations={missingObservations}
-        />
+        <div className="side-rail">
+          <UploadPanel onUploaded={(upload) => loadDashboard(upload.sensor_id)} />
+          <SensorDetails
+            sensor={selectedSensor}
+            readings={readings}
+            anomalies={anomalies}
+            missingObservations={missingObservations}
+          />
+        </div>
       </section>
     </main>
   );

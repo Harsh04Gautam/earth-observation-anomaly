@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 
 const DEFAULT_CENTER = [45.4215, -75.6972];
 
@@ -20,12 +21,36 @@ function markerRadius(sensor, selectedSensorId) {
   return sensor.sensor_id === selectedSensorId ? baseRadius + 5 : baseRadius;
 }
 
+function MapFocus({ sensors, selectedSensorId }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (sensors.length === 0) {
+      return;
+    }
+
+    const selectedSensor = sensors.find((sensor) => sensor.sensor_id === selectedSensorId);
+    if (selectedSensor) {
+      map.flyTo([selectedSensor.latitude, selectedSensor.longitude], Math.max(map.getZoom(), 8), {
+        duration: 0.45,
+      });
+      return;
+    }
+
+    const bounds = sensors.map((sensor) => [sensor.latitude, sensor.longitude]);
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 9 });
+  }, [map, selectedSensorId, sensors]);
+
+  return null;
+}
+
 function SensorMap({ sensors, selectedSensorId, onSelectSensor }) {
   const center = sensors[0] ? [sensors[0].latitude, sensors[0].longitude] : DEFAULT_CENTER;
 
   return (
     <section className="map-panel" aria-label="Sensor map">
       <MapContainer center={center} zoom={8} scrollWheelZoom className="sensor-map">
+        <MapFocus sensors={sensors} selectedSensorId={selectedSensorId} />
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -1,6 +1,6 @@
 # EO Anomaly Pipeline & Pulse Map
 
-Implementation for the Earth Observation candidate assignment. The FastAPI backend reads messy sensor CSV files from `data/raw`, parses the file metadata, cleans valid time-series rows, detects temperature readings outside the scientific range `-50` to `60`, and exposes the result through REST endpoints. The React frontend renders a Leaflet pulse map and a Chart.js reading trend for the selected sensor.
+Implementation for the Earth Observation candidate assignment. The FastAPI backend reads messy sensor CSV files from `data/raw`, parses the file metadata, cleans valid time-series rows, detects temperature readings outside the scientific range `-50` to `60`, and exposes the result through REST endpoints. The React frontend renders a Leaflet pulse map, supports CSV uploads with coordinates, and shows a Chart.js reading trend for the selected sensor.
 
 ## Backend Setup
 
@@ -28,6 +28,7 @@ Open the dashboard at `http://127.0.0.1:5173`.
 ```text
 GET /health
 GET /api/files
+POST /api/uploads
 GET /api/sensors
 GET /api/readings
 GET /api/anomalies
@@ -53,4 +54,4 @@ npm run build
 
 The filename parser accepts both assignment examples: `SENSOR_A-20231012-99234-TEMP.csv` and `sensor2837x_20260512-99234-TEMP.csv`. CSV loading skips repeated or malformed header rows such as `Time, Temperature`, preserves source file metadata, and reports missing one-minute observations separately from scientific anomalies.
 
-The source CSV does not include sensor coordinates, so `data/sensors.json` supplies demo latitude and longitude values for visualization. In a production pipeline those coordinates should come from authoritative sensor metadata.
+The source CSV does not include sensor coordinates, so `data/sensors.json` supplies latitude and longitude values for visualization. The upload form requires coordinates for each uploaded CSV and stores them in that metadata file. In a production pipeline those coordinates should come from authoritative sensor metadata rather than manual entry.

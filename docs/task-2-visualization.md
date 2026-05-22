@@ -2,7 +2,7 @@
 
 ## Objective
 
-Task 2 adds a React dashboard that consumes the FastAPI API, displays sensor locations on an interactive Leaflet map, color-codes sensor intensity, and renders a Chart.js time-series trend when a sensor is selected.
+Task 2 adds a React dashboard that consumes the FastAPI API, displays sensor locations on an interactive Leaflet map, color-codes sensor intensity, accepts new CSV uploads with coordinates, and renders a Chart.js time-series trend when a sensor is selected.
 
 ## Stack
 
@@ -23,7 +23,7 @@ Task 2 adds sensor metadata:
 data/sensors.json
 ```
 
-The assignment CSV does not include coordinates, so this file provides demo coordinates for visualization:
+The assignment CSV does not include coordinates, so this file provides coordinates for visualization:
 
 ```json
 [
@@ -68,6 +68,23 @@ http://localhost:5173
 http://127.0.0.1:5173
 ```
 
+CSV uploads are handled by:
+
+```text
+POST /api/uploads
+```
+
+The endpoint accepts multipart form data:
+
+```text
+file       CSV file using the assignment filename convention
+latitude   decimal degrees, -90 to 90
+longitude  decimal degrees, -180 to 180
+name       optional display name
+```
+
+The backend validates the filename, saves the CSV into `data/raw`, parses the readings, detects anomalies, and upserts the submitted coordinates into `data/sensors.json`. The map then refreshes from `/api/sensors`, so every uploaded file with coordinates appears as a clickable marker.
+
 ## Frontend Structure
 
 ```text
@@ -94,6 +111,7 @@ The React app:
 - Checks `/health` and displays API status.
 - Fetches `/api/sensors` to populate map markers.
 - Fetches `/api/missing-observations` to surface missing one-minute observations.
+- Uploads new CSV files to `/api/uploads` with latitude and longitude.
 - Fetches `/api/sensors/{sensor_id}/readings` when a marker is selected.
 - Fetches `/api/sensors/{sensor_id}/anomalies` for the selected sensor summary.
 - Renders a Leaflet circle marker for each sensor.
@@ -143,7 +161,7 @@ pytest -q
 Current result:
 
 ```text
-7 passed
+9 passed
 ```
 
 Frontend build:

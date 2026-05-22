@@ -75,3 +75,13 @@ class SensorSummaryResponse(BaseModel):
 class SensorSummaryListResponse(BaseModel):
     count: int
     sensors: list[SensorSummaryResponse]
+
+
+class UploadResponse(BaseModel):
+    source_file: str
+    sensor_id: str
+    name: str
+    latitude: float
+    longitude: float
+    reading_count: int
+    anomaly_count: int

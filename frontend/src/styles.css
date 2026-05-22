@@ -79,12 +79,90 @@ textarea {
   min-height: calc(100vh - 76px);
 }
 
-.detail-panel {
+.side-rail {
   min-width: 0;
-  padding: 20px;
   background: #fbfbf8;
   border-left: 1px solid #d8ddd3;
   overflow: auto;
+}
+
+.detail-panel,
+.upload-panel {
+  padding: 20px;
+}
+
+.upload-panel {
+  background: #ffffff;
+  border-bottom: 1px solid #d8ddd3;
+}
+
+.panel-heading h2,
+.panel-heading p {
+  margin: 0;
+}
+
+.panel-heading h2 {
+  font-size: 1rem;
+}
+
+.panel-heading p {
+  color: #5d6676;
+  margin-top: 4px;
+}
+
+.upload-panel form {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.upload-panel label {
+  display: grid;
+  gap: 6px;
+  color: #475569;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.upload-panel input {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  color: #172033;
+  background: #fbfbf8;
+  border: 1px solid #cfd6c9;
+  border-radius: 8px;
+}
+
+.upload-panel input[type="file"] {
+  padding: 7px 10px;
+}
+
+.coordinate-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.upload-panel button {
+  min-height: 40px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #1f6f5b;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.upload-panel button:disabled {
+  background: #94a3b8;
+  cursor: progress;
+}
+
+.upload-status {
+  margin: 10px 0 0;
+  color: #475569;
+  font-weight: 700;
 }
 
 .sensor-heading {
@@ -242,7 +320,7 @@ textarea {
     min-height: 52vh;
   }
 
-  .detail-panel {
+  .side-rail {
     border-left: 0;
     border-top: 1px solid #d8ddd3;
   }
@@ -250,11 +328,13 @@ textarea {
 
 @media (max-width: 520px) {
   .top-bar,
-  .detail-panel {
+  .detail-panel,
+  .upload-panel {
     padding: 16px;
   }
 
-  .metric-grid {
+  .metric-grid,
+  .coordinate-row {
     grid-template-columns: 1fr;
   }
 }

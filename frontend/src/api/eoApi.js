@@ -27,3 +27,25 @@ export function getSensorAnomalies(sensorId) {
 export function getMissingObservations() {
   return request('/api/missing-observations');
 }
+
+export async function uploadSensorCsv({ file, latitude, longitude, name }) {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('latitude', latitude);
+  formData.append('longitude', longitude);
+  if (name) {
+    formData.append('name', name);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/uploads`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    throw new Error(payload?.detail ?? `Upload failed: ${response.status}`);
+  }
+
+  return response.json();
+}

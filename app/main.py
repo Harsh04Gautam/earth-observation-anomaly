@@ -1,4 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from pathlib import Path
+
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import (
@@ -15,11 +17,13 @@ from app.schemas import (
     SensorFileResponse,
     SensorSummaryListResponse,
     SensorSummaryResponse,
+    UploadResponse,
     ValidRangeResponse,
 )
-from app.services.csv_loader import load_sensor_directory
+from app.models import SensorLocation
+from app.services.csv_loader import load_sensor_directory, load_sensor_file
 from app.services.filename_parser import parse_sensor_filename
-from app.services.sensor_locations import load_sensor_locations
+from app.services.sensor_locations import load_sensor_locations, upsert_sensor_location
 
 app = FastAPI(
     title="EO Anomaly Pipeline API",
@@ -47,6 +51,67 @@ def list_files() -> list[SensorFileResponse]:
         SensorFileResponse.model_validate(parse_sensor_filename(path).__dict__)
         for path in sorted(DATA_DIR.glob("*.csv"))
     ]
+
+
+@app.post("/api/uploads", response_model=UploadResponse, status_code=201)
+async def upload_sensor_file(
+    file: UploadFile = File(...),
+    latitude: float = Form(...),
+    longitude: float = Form(...),
+    name: str | None = Form(None),
+) -> UploadResponse:
+    if latitude < -90 or latitude > 90:
+        raise HTTPException(status_code=400, detail="Latitude must be between -90 and 90")
+    if longitude < -180 or longitude > 180:
+        raise HTTPException(status_code=400, detail="Longitude must be between -180 and 180")
+
+    source_file = Path(file.filename or "").name
+    if not source_file.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV uploads are supported")
+
+    try:
+        metadata = parse_sensor_filename(source_file)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    destination = DATA_DIR / source_file
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Uploaded CSV is empty")
+
+    destination.write_bytes(content)
+
+    try:
+        dataset = load_sensor_file(destination)
+    except ValueError as exc:
+        destination.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not dataset.readings:
+        destination.unlink(missing_ok=True)
+        raise HTTPException(status_code=400, detail="Uploaded CSV has no valid readings")
+
+    sensor_name = name.strip() if name and name.strip() else metadata.sensor_name
+    upsert_sensor_location(
+        SENSOR_METADATA_PATH,
+        SensorLocation(
+            sensor_id=metadata.numeric_id,
+            name=sensor_name,
+            latitude=latitude,
+            longitude=longitude,
+        ),
+    )
+
+    return UploadResponse(
+        source_file=source_file,
+        sensor_id=metadata.numeric_id,
+        name=sensor_name,
+        latitude=latitude,
+        longitude=longitude,
+        reading_count=len(dataset.readings),
+        anomaly_count=len(dataset.anomalies),
+    )
 
 
 @app.get("/api/sensors", response_model=SensorSummaryListResponse)
