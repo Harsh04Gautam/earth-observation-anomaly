@@ -28,6 +28,7 @@ app/
 data/
   raw/
     sensor2837x_20260512-99234-TEMP.csv
+    sensorToronto_20260513-88421-TEMP.csv
 
 tests/
   test_filename_parser.py
@@ -214,7 +215,7 @@ pytest -q
 Current result:
 
 ```text
-6 passed
+9 passed
 ```
 
 ## Verification Performed
@@ -234,9 +235,9 @@ curl -s http://127.0.0.1:8000/api/sensors/99234/anomalies
 Observed results:
 
 - `/health` returned `{"status":"ok"}`.
-- `/api/files` returned the parsed sample CSV metadata.
-- `/api/readings` returned `49` cleaned readings.
-- `/api/anomalies` returned `6` anomalies.
+- `/api/files` returned the parsed seeded CSV metadata.
+- `/api/readings` returned cleaned readings from both seeded CSV files.
+- `/api/anomalies` returned out-of-range readings from both seeded CSV files.
 - `/api/missing-observations` returned `1` missing observation.
 - `/api/sensors/99234/anomalies` returned the six anomalies for sensor `99234`.
 

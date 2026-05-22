@@ -32,6 +32,12 @@ The assignment CSV does not include coordinates, so this file provides coordinat
     "name": "sensor2837x",
     "latitude": 45.4215,
     "longitude": -75.6972
+  },
+  {
+    "sensor_id": "88421",
+    "name": "sensorToronto",
+    "latitude": 43.6532,
+    "longitude": -79.3832
   }
 ]
 ```
@@ -46,7 +52,7 @@ Example response shape:
 
 ```json
 {
-  "count": 1,
+  "count": 2,
   "sensors": [
     {
       "sensor_id": "99234",
@@ -56,6 +62,15 @@ Example response shape:
       "latest_temperature": -159.6692667,
       "latest_timestamp": "2026-05-12T00:50:00",
       "anomaly_count": 6
+    },
+    {
+      "sensor_id": "88421",
+      "name": "sensorToronto",
+      "latitude": 43.6532,
+      "longitude": -79.3832,
+      "latest_temperature": 6.8,
+      "latest_timestamp": "2026-05-13T00:20:00",
+      "anomaly_count": 2
     }
   ]
 }
@@ -101,6 +116,7 @@ frontend/
       SensorDetails.jsx
       ReadingChart.jsx
       StatusPanel.jsx
+      UploadPanel.jsx
     styles.css
 ```
 
@@ -112,6 +128,7 @@ The React app:
 - Fetches `/api/sensors` to populate map markers.
 - Fetches `/api/missing-observations` to surface missing one-minute observations.
 - Uploads new CSV files to `/api/uploads` with latitude and longitude.
+- Refreshes the map after upload and selects the uploaded sensor.
 - Fetches `/api/sensors/{sensor_id}/readings` when a marker is selected.
 - Fetches `/api/sensors/{sensor_id}/anomalies` for the selected sensor summary.
 - Renders a Leaflet circle marker for each sensor.

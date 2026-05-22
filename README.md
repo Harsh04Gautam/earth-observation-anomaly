@@ -23,6 +23,13 @@ npm run dev
 
 Open the dashboard at `http://127.0.0.1:5173`.
 
+The repository includes two seeded sensor CSV files so the map shows multiple coordinates immediately:
+
+```text
+99234  sensor2837x     45.4215, -75.6972
+88421  sensorToronto   43.6532, -79.3832
+```
+
 ## Useful Endpoints
 
 ```text
