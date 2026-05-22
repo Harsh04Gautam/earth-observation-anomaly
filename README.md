@@ -63,7 +63,14 @@ npm run build
 docs/task-1-data-processing.md
 docs/task-2-visualization.md
 docs/ai-collaboration-log.md
+docs/task-4-architecture-design.md
 ```
+
+## Scaling Architecture
+
+To scale this architecture to 100,000 sensors, I would move the current file-on-request parsing into an asynchronous ingestion pipeline. FastAPI would validate uploads, store raw CSVs in object storage, create an ingestion job, and enqueue processing through Celery backed by Redis or RabbitMQ. Celery workers would parse files in chunks, write readings in bulk, detect anomalies using threshold records, and persist missing-observation quality flags. Sensor metadata and coordinates would live in PostgreSQL/PostGIS with spatial indexes, while readings and anomalies would live in TimescaleDB hypertables partitioned by time and sensor. Raw files would remain immutable for auditability, and each processed row would retain source-file provenance.
+
+For frontend performance, the React map should not request or render all sensors at once. The API should return only viewport-filtered data, clustered summaries, or vector tiles based on zoom level and bounding box. At moderate scale Leaflet clustering is acceptable, but for 100,000 active points I would evaluate WebGL layers with Deck.gl or MapLibre GL. Charts should request downsampled readings for the selected time range, with missing observations represented as gaps or quality flags rather than silently interpolated. Redis/CDN caching for map tiles, latest sensor summaries, and anomaly counts would keep repeated dashboard interactions fast while ingestion jobs update affected cache keys when new data lands.
 
 ## Notes
 
