@@ -57,6 +57,14 @@ cd frontend
 npm run build
 ```
 
+## Documentation
+
+```text
+docs/task-1-data-processing.md
+docs/task-2-visualization.md
+docs/ai-collaboration-log.md
+```
+
 ## Notes
 
 The filename parser accepts both assignment examples: `SENSOR_A-20231012-99234-TEMP.csv` and `sensor2837x_20260512-99234-TEMP.csv`. CSV loading skips repeated or malformed header rows such as `Time, Temperature`, preserves source file metadata, and reports missing one-minute observations separately from scientific anomalies.
