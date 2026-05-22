@@ -64,6 +64,7 @@ docs/task-1-data-processing.md
 docs/task-2-visualization.md
 docs/ai-collaboration-log.md
 docs/task-4-architecture-design.md
+docs/technical-questionnaire.md
 ```
 
 ## Scaling Architecture
