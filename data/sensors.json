@@ -4,5 +4,11 @@
     "name": "sensor2837x",
     "latitude": 45.4215,
     "longitude": -75.6972
+  },
+  {
+    "sensor_id": "88421",
+    "name": "sensorToronto",
+    "latitude": 43.6532,
+    "longitude": -79.3832
   }
 ]
