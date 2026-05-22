@@ -42,3 +42,11 @@ class SensorDataset:
     readings: list[SensorReading]
     anomalies: list[TemperatureAnomaly]
     missing_observations: list[datetime]
+
+
+@dataclass(frozen=True)
+class SensorLocation:
+    sensor_id: str
+    name: str
+    latitude: float
+    longitude: float

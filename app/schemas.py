@@ -60,3 +60,18 @@ class ReadingListResponse(BaseModel):
 class MissingObservationListResponse(BaseModel):
     count: int
     missing_observations: list[datetime]
+
+
+class SensorSummaryResponse(BaseModel):
+    sensor_id: str
+    name: str
+    latitude: float
+    longitude: float
+    latest_temperature: float | None
+    latest_timestamp: datetime | None
+    anomaly_count: int
+
+
+class SensorSummaryListResponse(BaseModel):
+    count: int
+    sensors: list[SensorSummaryResponse]
